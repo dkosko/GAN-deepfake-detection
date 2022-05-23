@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+*.xml
+*.iml
+.idea/
+/real_and_fake_face/
+
