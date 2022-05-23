@@ -3,6 +3,6 @@
 /workspace.xml
 *.xml
 *.iml
-.idea/
+/.idea/
 /real_and_fake_face/
 
