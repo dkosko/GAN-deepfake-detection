@@ -98,5 +98,5 @@ AntiSpoofClassifier.train(train_data=(data.train_inputs, data.train_outputs),
 AntiSpoofClassifier.evaluate(test_data=(data.test_inputs, data.test_outputs))
 
 AntiSpoofClassifier.plot()
-AntiSpoofClassifier.save(path="./", checkpoint_name="module")
+AntiSpoofClassifier.save(path="./", checkpoint_name="module_with_valid")
 

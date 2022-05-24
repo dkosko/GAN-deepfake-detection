@@ -10,5 +10,9 @@ import torch
 from haroun import Data, Model, ConvPool
 from haroun.augmentation import augmentation
 from haroun.losses import rmse
+from main import Network
 
-Model = torch.load("module.pth")
+net = Network()
+checkpoint = torch.load("module_with_valid.pth")
+net.load_state_dict(checkpoint)
+
