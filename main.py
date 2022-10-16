@@ -6,14 +6,16 @@ import skimage.transform as tf
 import skimage.color as color
 import torch
 
-# import my Library (Pytorch Framework)
-from haroun import Data, Model, ConvPool
-from haroun.augmentation import augmentation
-from haroun.losses import rmse
+# import Torch_model package
+from Torch_model.data import Data
+from Torch_model.model import Model
+from Torch_model.neural import ConvPool
+from Torch_model.augmentation import augmentation
+from Torch_model.losses import rmse
 
 
-def load_data():
-    path = "real_and_fake_face/"
+
+def load_data(path="real_and_fake_face/"):
     images = []
     labels = []
 
@@ -35,19 +37,6 @@ def load_data():
     images, labels = augmentation(images, labels, flip_y=True, flip_x=True, brightness=True)
 
     return images, labels
-
-
-classes = {'real': 0, 'fake': 1}
-data = Data(loader=load_data(), classes=classes)
-data.shape()
-data.stat()
-data.show()
-
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-data.dataset(split_size=0.05, shuffle=True, random_state=42,
-             images_format=torch.float32, labels_format=torch.float32,
-             permute=True, one_hot=True, device=device)
 
 
 class Network(torch.nn.Module):
@@ -79,24 +68,41 @@ class Network(torch.nn.Module):
         self.lin = torch.nn.Sequential(self.fc1, self.bn1, self.fc2, self.bn2,
                                        self.fc3, self.bn3, self.fc4)
 
-    def forward(self, X: torch.Tensor) -> torch.Tensor:
-        X = self.input_norm(X)
-        X = self.net(X)
-        X = X.reshape(X.size(0), -1)
-        X = self.lin(X)
-        X = torch.nn.functional.elu(X, alpha=1.0, inplace=False)
-        return X
+    def forward(self, X: torch.Tensor, predict=False) -> torch.Tensor:
+        if predict:
+            pass
+        else:
+
+            X = self.input_norm(X)
+            X = self.net(X)
+            X = X.reshape(X.size(0), -1)
+            X = self.lin(X)
+            X = torch.nn.functional.elu(X, alpha=1.0, inplace=False)
+            return X
 
 
-net = Network()
-AntiSpoofClassifier = Model(net, "adam", rmse, device)
-AntiSpoofClassifier.train(train_data=(data.train_inputs, data.train_outputs),
-                          val_data=(data.val_inputs, data.val_outputs),
-                          epochs=200, patience=20, batch_size=100, learning_rate=1.0E-3)
+if __name__ == "__main__":
+    classes = {'real': 0, 'fake': 1}
+    data = Data(loader=load_data(), classes=classes)
+    data.shape()
+    data.stat()
+    data.show()
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    data.dataset(split_size=0.05, shuffle=True, random_state=42,
+                 images_format=torch.float32, labels_format=torch.float32,
+                 permute=True, one_hot=True, device=device)
 
 
-AntiSpoofClassifier.evaluate(test_data=(data.test_inputs, data.test_outputs))
+    net = Network()
+    AntiSpoofClassifier = Model(net, "adam", rmse, device)
+    AntiSpoofClassifier.train(train_data=(data.train_inputs, data.train_outputs),
+                              val_data=(data.val_inputs, data.val_outputs),
+                              epochs=1, patience=20, batch_size=100, learning_rate=1.0E-3)
 
-AntiSpoofClassifier.plot()
-AntiSpoofClassifier.save(path="./", checkpoint_name="module_with_valid")
+
+    AntiSpoofClassifier.evaluate(test_data=(data.test_inputs, data.test_outputs))
+
+    AntiSpoofClassifier.plot()
+    AntiSpoofClassifier.save(path="./", checkpoint_name="module_test1")
 
