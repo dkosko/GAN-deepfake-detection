@@ -84,4 +84,4 @@ if __name__ == "__main__":
     # X = load_single_image(fake_path)
     # Y = net(X)
     # print(Y)
-    torch.save(net, 'model_with_valid.pth')
+    torch.save(net.state_dict(), 'model_state_dict.pt')
